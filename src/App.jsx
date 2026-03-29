@@ -12,19 +12,20 @@ var IP = {width:"100%",padding:"10px 12px",borderRadius:10,border:"1.5px solid #
 var CD = {background:"#fff",borderRadius:16,padding:"1.25rem",boxShadow:"0 4px 20px rgba(0,0,0,0.07)",border:"1px solid #e8eaf0",marginBottom:"1rem"};
 var LB = {fontSize:12,color:"#64748b",fontWeight:600,display:"block",marginBottom:4};
 
-const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL)
-  ? import.meta.env.VITE_API_URL
-  : '';
-
 async function ask(system, user, tokens) {
-  var res = await fetch(API_BASE + '/api/claude', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ system: system, user: user, maxTokens: tokens || 800 })
-  });
-  var d = await res.json();
-  if (d.error) throw new Error(d.error);
-  return d.text || '';
+  var ctrl = new AbortController();
+  var t = setTimeout(function() { ctrl.abort(); }, 30000);
+  try {
+    var res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST", signal: ctrl.signal,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model:"claude-haiku-4-5-20251001", max_tokens:tokens||800, system:system, messages:[{role:"user",content:user}] })
+    });
+    clearTimeout(t);
+    var d = await res.json();
+    if (d.error) throw new Error(d.error.message);
+    return (d.content && d.content[0] && d.content[0].text) || "";
+  } catch(e) { clearTimeout(t); throw e.name==="AbortError"?new Error("Timed out"):e; }
 }
 
 function getJ(raw) {
@@ -494,7 +495,7 @@ export default function App() {
                     <button onClick={function(){if(!manJobEntry.title||!manJobEntry.company){alert("Fill title and company.");return;}setManJobs(function(p){return p.concat([Object.assign({},manJobEntry)]);});setManJobEntry({title:"",company:"",duration:"",bullets:"" });}} style={BP}>+ Add Role</button>
                   </div>
                 </div>
-                <button onClick={doManualBuild} style={{...BP,width:"100%"}}>Parse with AI →</button>
+                <button onClick={doManualBuild} style={{...BP,width:"100%"}}>Continue →</button>
               </div>
             )}
           </div>
