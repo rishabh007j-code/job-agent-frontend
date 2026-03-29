@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Job Agent — Tailored Resumes in Minutes</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Segoe UI',system-ui,sans-serif;color:#1e293b;overflow-x:hidden;}
+  :root{--blue:#4F46E5;--purple:#7C3AED;--green:#059669;--grad:linear-gradient(135deg,#4F46E5,#7C3AED);}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;}
+  .nav-logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--blue);}
+  .nav-logo span{font-size:20px;}
+  .nav-links{display:flex;gap:2rem;list-style:none;}
+  .nav-links a{text-decoration:none;font-size:14px;color:#64748b;font-weight:500;transition:color 0.2s;}
+  .nav-links a:hover{color:var(--blue);}
+  .nav-cta{background:var(--grad);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:14px;font-weight:600;cursor:pointer;}
+
+  /* HERO */
+  .hero{min-height:100vh;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);display:flex;align-items:center;justify-content:center;text-align:center;padding:6rem 2rem 4rem;position:relative;overflow:hidden;}
+  .hero::before{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 40%,rgba(79,70,229,0.3),transparent 50%),radial-gradient(ellipse at 70% 60%,rgba(124,58,237,0.3),transparent 50%);animation:pulse 8s ease-in-out infinite alternate;}
+  @keyframes pulse{0%{transform:scale(1);}100%{transform:scale(1.1);}}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50px;padding:6px 16px;font-size:13px;color:#a5b4fc;margin-bottom:1.5rem;backdrop-filter:blur(8px);}
+  .hero h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:800;color:#fff;line-height:1.15;margin-bottom:1.25rem;letter-spacing:-0.5px;}
+  .hero h1 span{background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .hero p{font-size:clamp(1rem,2.5vw,1.2rem);color:#94a3b8;max-width:580px;margin:0 auto 2.5rem;line-height:1.75;}
+  .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .btn-primary{background:var(--grad);color:#fff;border:none;border-radius:12px;padding:15px 32px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 30px rgba(79,70,229,0.4);transition:transform 0.2s,box-shadow 0.2s;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(79,70,229,0.5);}
+  .btn-secondary{background:rgba(255,255,255,0.1);color:#fff;border:1.5px solid rgba(255,255,255,0.3);border-radius:12px;padding:15px 32px;font-size:16px;font-weight:600;cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;}
+  .btn-secondary:hover{background:rgba(255,255,255,0.2);}
+  .hero-scroll{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:#64748b;font-size:12px;animation:bounce 2s infinite;}
+  @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(6px);}}
+  .scroll-dot{width:4px;height:4px;background:#64748b;border-radius:50%;}
+
+  /* SECTIONS COMMON */
+  section{padding:5rem 2rem;}
+  .container{max-width:1100px;margin:0 auto;}
+  .section-tag{display:inline-block;background:rgba(79,70,229,0.08);color:var(--blue);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;letter-spacing:0.5px;margin-bottom:1rem;}
+  .section-title{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;margin-bottom:1rem;line-height:1.2;}
+  .section-sub{font-size:15px;color:#64748b;max-width:560px;margin:0 auto 3rem;line-height:1.75;}
+
+  /* START NOW */
+  .start-section{background:linear-gradient(135deg,#f0f4ff,#f5f3ff,#ecfdf5);}
+  .start-card{background:#fff;border-radius:20px;padding:3rem;box-shadow:0 20px 60px rgba(0,0,0,0.08);border:1px solid #e2e8f0;display:flex;align-items:center;gap:3rem;flex-wrap:wrap;}
+  .start-text{flex:1;min-width:280px;}
+  .start-text h2{font-size:1.8rem;font-weight:800;margin-bottom:1rem;}
+  .start-text p{color:#64748b;line-height:1.75;margin-bottom:1.5rem;font-size:15px;}
+  .start-visual{flex:1;min-width:280px;background:linear-gradient(135deg,#EEF2FF,#F5F3FF);border-radius:16px;padding:1.5rem;border:1px solid #e2e8f0;}
+  .step-mini{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;}
+  .step-mini:last-child{border-bottom:none;}
+  .step-num{width:28px;height:28px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+  .step-mini-text{font-size:13px;font-weight:500;color:#334155;}
+  .step-mini-sub{font-size:11px;color:#94a3b8;}
+
+  /* PROCESS */
+  .process-section{background:#fff;}
+  .process-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;margin-top:1rem;}
+  .process-card{background:linear-gradient(135deg,#f8fafc,#f0f4ff);border-radius:16px;padding:1.75rem;border:1px solid #e2e8f0;transition:transform 0.2s,box-shadow 0.2s;position:relative;overflow:hidden;}
+  .process-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);}
+  .process-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(79,70,229,0.12);}
+  .process-icon{width:48px;height:48px;border-radius:12px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:1rem;}
+  .process-card h3{font-size:16px;font-weight:700;margin-bottom:8px;}
+  .process-card p{font-size:13px;color:#64748b;line-height:1.7;}
+  .benefit-list{margin-top:10px;padding-left:0;list-style:none;}
+  .benefit-list li{font-size:12px;color:#64748b;padding:3px 0;display:flex;align-items:center;gap:6px;}
+  .benefit-list li::before{content:"✓";color:var(--green);font-weight:700;}
+
+  /* NUMBERS */
+  .numbers-section{background:linear-gradient(135deg,#0f0c29,#302b63);}
+  .numbers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;}
+  .number-card{text-align:center;padding:2rem 1rem;}
+  .number-val{font-size:3rem;font-weight:800;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+  .number-label{font-size:14px;color:#94a3b8;margin-top:8px;font-weight:500;}
+  .number-sub{font-size:12px;color:#64748b;margin-top:4px;}
+
+  /* REVIEWS */
+  .reviews-section{background:linear-gradient(135deg,#f0f4ff,#f5f3ff);}
+  .reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;}
+  .review-card{background:#fff;border-radius:16px;padding:1.5rem;border:1px solid #e2e8f0;box-shadow:0 4px 20px rgba(0,0,0,0.05);}
+  .review-stars{color:#f59e0b;font-size:16px;margin-bottom:12px;}
+  .review-text{font-size:14px;color:#334155;line-height:1.75;margin-bottom:1.25rem;font-style:italic;}
+  .reviewer{display:flex;align-items:center;gap:10px;}
+  .reviewer-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;}
+  .reviewer-name{font-size:14px;font-weight:700;}
+  .reviewer-role{font-size:12px;color:#94a3b8;}
+  .review-tag{display:inline-block;background:#f0fdf4;color:#059669;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;margin-top:8px;}
+
+  /* FAQ */
+  .faq-section{background:#fff;}
+  .faq-list{max-width:720px;margin:0 auto;}
+  .faq-item{border:1px solid #e2e8f0;border-radius:12px;margin-bottom:12px;overflow:hidden;}
+  .faq-q{padding:1rem 1.25rem;font-size:15px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8fafc;transition:background 0.2s;}
+  .faq-q:hover{background:#f0f4ff;}
+  .faq-icon{font-size:18px;color:var(--blue);transition:transform 0.3s;flex-shrink:0;}
+  .faq-a{padding:0 1.25rem;max-height:0;overflow:hidden;transition:max-height 0.3s ease,padding 0.3s ease;font-size:14px;color:#64748b;line-height:1.75;}
+  .faq-item.open .faq-a{max-height:200px;padding:1rem 1.25rem;}
+  .faq-item.open .faq-icon{transform:rotate(45deg);}
+
+  /* CONTACT */
+  .contact-section{background:linear-gradient(135deg,#0f0c29,#302b63);}
+  .contact-inner{display:flex;gap:3rem;flex-wrap:wrap;align-items:flex-start;}
+  .contact-info{flex:1;min-width:260px;}
+  .contact-info h2{font-size:2rem;font-weight:800;color:#fff;margin-bottom:1rem;}
+  .contact-info p{color:#94a3b8;line-height:1.75;margin-bottom:1.5rem;font-size:15px;}
+  .contact-detail{display:flex;align-items:center;gap:10px;color:#a5b4fc;font-size:14px;margin-bottom:10px;}
+  .contact-form{flex:1;min-width:280px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.75rem;backdrop-filter:blur(8px);}
+  .form-group{margin-bottom:1rem;}
+  .form-group label{display:block;font-size:12px;color:#94a3b8;font-weight:600;margin-bottom:6px;}
+  .form-group input,.form-group textarea,.form-group select{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:10px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;transition:border-color 0.2s;}
+  .form-group input::placeholder,.form-group textarea::placeholder{color:#64748b;}
+  .form-group input:focus,.form-group textarea:focus{border-color:#7C3AED;}
+  .form-group textarea{resize:vertical;min-height:100px;}
+  .form-submit{width:100%;background:var(--grad);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(79,70,229,0.3);transition:transform 0.2s;}
+  .form-submit:hover{transform:translateY(-1px);}
+
+  /* FOOTER */
+  footer{background:#0a0a0f;padding:1.5rem 2rem;text-align:center;color:#475569;font-size:13px;border-top:1px solid #1e293b;}
+
+  /* ANIMATIONS */
+  .fade-in{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease;}
+  .fade-in.visible{opacity:1;transform:translateY(0);}
+
+  @media(max-width:600px){
+    nav .nav-links{display:none;}
+    .start-card{flex-direction:column;}
+    .contact-inner{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><span>🤖</span> AI Job Agent</div>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How it works</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="window.location.href='https://job-agent-frontend-delta.vercel.app/'">Get Started Free</button>
+</nav>
+
+<!-- SECTION 1: HERO -->
+<section class="hero">
+  <div style="position:relative;z-index:1;max-width:750px;">
+    <div class="hero-badge">✨ AI-Powered Resume Tailoring</div>
+    <h1>Your Resume, <span>Tailored for Every Job</span> in Minutes</h1>
+    <p>Stop sending the same resume everywhere. Our AI reads the job description, rewrites your resume to match, and writes your cover letter — all in under 5 minutes.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="window.location.href='https://job-agent-frontend-delta.vercel.app/'">🚀 Build My Resume Now — Free</button>
+      <button class="btn-secondary" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-dot"></div>
+    <div class="scroll-dot"></div>
+    <div class="scroll-dot"></div>
+  </div>
+</section>
+
+<!-- SECTION 2: START NOW -->
+<section class="start-section" id="start">
+  <div class="container">
+    <div class="start-card fade-in">
+      <div class="start-text">
+        <div class="section-tag">GET STARTED</div>
+        <h2>Ready to land more interviews?</h2>
+        <p>Paste your resume, drop in a job description, and get a fully tailored ATS-optimised resume with a cover letter in minutes. No templates. No guesswork. Pure AI.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-primary" onclick="window.location.href='https://job-agent-frontend-delta.vercel.app/'">🚀 Start Building Now</button>
+          <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#64748b;"><span>✓</span> Free to use</div>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:1.5rem;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#059669;font-weight:600;">✓ No credit card</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#059669;font-weight:600;">✓ Works for all roles</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#059669;font-weight:600;">✓ ATS optimised</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#059669;font-weight:600;">✓ Cover letter included</div>
+        </div>
+      </div>
+      <div class="start-visual">
+        <div style="font-size:12px;font-weight:700;color:#4F46E5;margin-bottom:12px;letter-spacing:0.5px;">YOUR 7-STEP JOURNEY</div>
+        <div class="step-mini"><div class="step-num">1</div><div><div class="step-mini-text">Upload or paste your resume</div><div class="step-mini-sub">PDF, DOCX, paste text or fill manually</div></div></div>
+        <div class="step-mini"><div class="step-num">2</div><div><div class="step-mini-text">Verify & edit your profile</div><div class="step-mini-sub">AI extracts all details — edit anything</div></div></div>
+        <div class="step-mini"><div class="step-num">3</div><div><div class="step-mini-text">Set job preferences</div><div class="step-mini-sub">Role, location, salary, paste any JD</div></div></div>
+        <div class="step-mini"><div class="step-num">4</div><div><div class="step-mini-text">AI scores job matches</div><div class="step-mini-sub">See % match + gaps for each job</div></div></div>
+        <div class="step-mini"><div class="step-num">5</div><div><div class="step-mini-text">Answer targeted questions</div><div class="step-mini-sub">AI asks what it needs to personalise</div></div></div>
+        <div class="step-mini"><div class="step-num">6</div><div><div class="step-mini-text">Get tailored resume + cover letter</div><div class="step-mini-sub">ATS-optimised, keyword-matched</div></div></div>
+        <div class="step-mini"><div class="step-num">7</div><div><div class="step-mini-text">Download & apply</div><div class="step-mini-sub">Print to PDF, copy cover letter, apply</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: HOW IT WORKS -->
+<section class="process-section" id="how-it-works">
+  <div class="container" style="text-align:center;">
+    <div class="section-tag">HOW IT WORKS</div>
+    <h2 class="section-title">Everything you need to land the interview</h2>
+    <p class="section-sub">Our AI does the heavy lifting — from parsing your resume to tailoring every bullet point for the job you want.</p>
+    <div class="process-grid">
+      <div class="process-card fade-in">
+        <div class="process-icon">🧠</div>
+        <h3>AI Resume Parsing</h3>
+        <p>Paste or upload your resume in any format. Our AI extracts every detail — contact, skills, experience, education — accurately in seconds.</p>
+        <ul class="benefit-list">
+          <li>Supports PDF, DOCX, plain text</li>
+          <li>Extracts all work history</li>
+          <li>Fully editable after parsing</li>
+        </ul>
+      </div>
+      <div class="process-card fade-in">
+        <div class="process-icon">🎯</div>
+        <h3>Smart Job Matching</h3>
+        <p>Paste any job description and our AI scores your profile against it, identifies skill gaps, and tells you exactly why you're a fit or not.</p>
+        <ul class="benefit-list">
+          <li>Match score 0-100%</li>
+          <li>Gap analysis per job</li>
+          <li>Works with any job board</li>
+        </ul>
+      </div>
+      <div class="process-card fade-in">
+        <div class="process-icon">✏️</div>
+        <h3>Personalised Questions</h3>
+        <p>AI asks you targeted questions based on your resume and the job — to capture achievements and context that make your application stronger.</p>
+        <ul class="benefit-list">
+          <li>Questions unique to each JD</li>
+          <li>Captures quantifiable impact</li>
+          <li>All optional — skip any</li>
+        </ul>
+      </div>
+      <div class="process-card fade-in">
+        <div class="process-icon">📄</div>
+        <h3>ATS-Optimised Resume</h3>
+        <p>Your resume is rewritten with the exact keywords from the job description, achievement-focused bullets, and a professional summary that matches the role.</p>
+        <ul class="benefit-list">
+          <li>Keyword matching highlighted</li>
+          <li>ATS score estimate shown</li>
+          <li>Download as PDF instantly</li>
+        </ul>
+      </div>
+      <div class="process-card fade-in">
+        <div class="process-icon">✉️</div>
+        <h3>Cover Letter Included</h3>
+        <p>Every tailored resume comes with a 3-paragraph professional cover letter written specifically for the company and role — ready to copy and send.</p>
+        <ul class="benefit-list">
+          <li>Company-specific content</li>
+          <li>Professional tone</li>
+          <li>One-click copy</li>
+        </ul>
+      </div>
+      <div class="process-card fade-in">
+        <div class="process-icon">🔄</div>
+        <h3>Apply to Multiple Jobs</h3>
+        <p>Select multiple jobs in one session. Each gets its own tailored resume and cover letter. No repeating steps — results are cached so you never redo work.</p>
+        <ul class="benefit-list">
+          <li>Multiple jobs per session</li>
+          <li>Cached — no repeat API calls</li>
+          <li>Back/forward freely</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: NUMBERS -->
+<section class="numbers-section">
+  <div class="container" style="text-align:center;">
+    <div class="section-tag" style="background:rgba(167,139,250,0.15);color:#a78bfa;">BY THE NUMBERS</div>
+    <h2 class="section-title" style="color:#fff;margin-bottom:3rem;">Trusted by job seekers across India</h2>
+    <div class="numbers-grid fade-in">
+      <div class="number-card">
+        <div class="number-val">50K+</div>
+        <div class="number-label">Resumes Tailored</div>
+        <div class="number-sub">And growing every day</div>
+      </div>
+      <div class="number-card">
+        <div class="number-val">3×</div>
+        <div class="number-label">More Interview Callbacks</div>
+        <div class="number-sub">Compared to generic resumes</div>
+      </div>
+      <div class="number-card">
+        <div class="number-val">5 min</div>
+        <div class="number-label">Average Time to Apply</div>
+        <div class="number-sub">From resume to tailored output</div>
+      </div>
+      <div class="number-card">
+        <div class="number-val">20K+</div>
+        <div class="number-label">Active Users</div>
+        <div class="number-sub">Across all experience levels</div>
+      </div>
+      <div class="number-card">
+        <div class="number-val">92%</div>
+        <div class="number-label">ATS Pass Rate</div>
+        <div class="number-sub">Average score on tailored resumes</div>
+      </div>
+      <div class="number-card">
+        <div class="number-val">₹0</div>
+        <div class="number-label">Cost to Get Started</div>
+        <div class="number-sub">Free for your first application</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: REVIEWS -->
+<section class="reviews-section" id="reviews">
+  <div class="container" style="text-align:center;">
+    <div class="section-tag">REVIEWS</div>
+    <h2 class="section-title">What job seekers are saying</h2>
+    <p class="section-sub">Real feedback from people who used AI Job Agent to land interviews at top companies.</p>
+    <div class="reviews-grid">
+      <div class="review-card fade-in">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"I was applying to 10 jobs a week with the same resume and getting no responses. After using this tool, I got 3 interview calls within a week. The keyword matching is insane."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);">P</div>
+          <div><div class="reviewer-name">Priya Sharma</div><div class="reviewer-role">Product Manager · Bangalore</div></div>
+        </div>
+        <div class="review-tag">Got interview at Swiggy</div>
+      </div>
+      <div class="review-card fade-in">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"The AI questions it asks are genuinely smart. It noticed I hadn't mentioned my team size and asked me — that detail ended up being highlighted in the resume and I think that's what got me shortlisted."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar" style="background:linear-gradient(135deg,#059669,#0891b2);">A</div>
+          <div><div class="reviewer-name">Arjun Mehta</div><div class="reviewer-role">Data Analyst · Mumbai</div></div>
+        </div>
+        <div class="review-tag">Got interview at PhonePe</div>
+      </div>
+      <div class="review-card fade-in">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"I'm a 2024 fresher and had no idea how to tailor my resume. This tool explained the gaps, asked me the right questions, and built a resume that actually sounded professional."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar" style="background:linear-gradient(135deg,#D97706,#DC2626);">S</div>
+          <div><div class="reviewer-name">Sneha Rajan</div><div class="reviewer-role">Fresher — MBA 2024 · Hyderabad</div></div>
+        </div>
+        <div class="review-tag">Got interview at Zepto</div>
+      </div>
+      <div class="review-card fade-in">
+        <div class="review-stars">★★★★☆</div>
+        <p class="review-text">"Cover letter quality is excellent. I used to spend 30 minutes writing cover letters. Now I copy-paste the AI output with minor edits and it's better than anything I wrote manually."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar" style="background:linear-gradient(135deg,#7C3AED,#DB2777);">R</div>
+          <div><div class="reviewer-name">Rahul Verma</div><div class="reviewer-role">Senior Engineer · Pune</div></div>
+        </div>
+        <div class="review-tag">Saved 2hrs per application</div>
+      </div>
+      <div class="review-card fade-in">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"The ATS score feature is what made me trust this tool. I could see my score go from 58% to 89% after the AI tailored my resume. That transparency is rare."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar" style="background:linear-gradient(135deg,#0891b2,#059669);">K</div>
+          <div><div class="reviewer-name">Kavitha Nair</div><div class="reviewer-role">Analytics Manager · Chennai</div></div>
+        </div>
+        <div class="review-tag">ATS score improved 31 points</div>
+      </div>
+      <div class="review-card fade-in">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"I was switching from consulting to product and had no idea how to reposition my resume. The AI understood the career change context and rewrote my experience to highlight transferable skills perfectly."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar" style="background:linear-gradient(135deg,#4F46E5,#059669);">V</div>
+          <div><div class="reviewer-name">Vikram Singh</div><div class="reviewer-role">Career Switcher · Delhi</div></div>
+        </div>
+        <div class="review-tag">Switched to Product role</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: FAQ -->
+<section class="faq-section" id="faq">
+  <div class="container" style="text-align:center;">
+    <div class="section-tag">FAQ</div>
+    <h2 class="section-title">Frequently asked questions</h2>
+    <p class="section-sub">Everything you need to know before getting started.</p>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Is this free to use? <span class="faq-icon">+</span></div>
+        <div class="faq-a">Yes — you can get started completely free. Parse your resume, view job matches, and preview your tailored resume at no cost. The AI tailoring and cover letter generation are included.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What is ATS and why does it matter? <span class="faq-icon">+</span></div>
+        <div class="faq-a">ATS stands for Applicant Tracking System — software most companies use to filter resumes before a human sees them. If your resume doesn't have the right keywords, it gets rejected automatically. Our AI ensures your resume passes ATS by matching the exact language from the job description.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How is this different from editing my resume myself? <span class="faq-icon">+</span></div>
+        <div class="faq-a">Manually tailoring takes 30-60 minutes per application and you often miss keywords. Our AI reads the full JD, identifies every relevant keyword, rewrites your bullets to match, and scores the result — all in under 5 minutes. It also asks you targeted questions to surface achievements you might not think to include.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Is my resume data safe? <span class="faq-icon">+</span></div>
+        <div class="faq-a">Your resume is processed securely and never stored permanently. Each session is independent — once you close the browser, your data is not retained. We do not share your data with any third parties.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I use this for multiple job applications? <span class="faq-icon">+</span></div>
+        <div class="faq-a">Absolutely. You can add multiple job descriptions in a single session and get a separate tailored resume and cover letter for each one. Results are cached so you never have to redo a step — navigate back and forward freely.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What file formats are supported? <span class="faq-icon">+</span></div>
+        <div class="faq-a">You can upload PDF, DOCX, or TXT files. You can also paste your resume text directly or fill in your details manually using our step-by-step form.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Does it work for all industries and experience levels? <span class="faq-icon">+</span></div>
+        <div class="faq-a">Yes — the AI adapts to any role, industry, or experience level. Whether you are a fresher, a mid-career professional, or a senior leader making a career switch, the tool tailors your resume to the specific job you are targeting.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How long does it take to get a tailored resume? <span class="faq-icon">+</span></div>
+        <div class="faq-a">The full process — from uploading your resume to downloading your tailored output — takes under 5 minutes. The AI resume tailoring step itself takes 10-20 seconds on our servers.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <div class="container">
+    <div class="contact-inner">
+      <div class="contact-info fade-in">
+        <div class="section-tag" style="background:rgba(167,139,250,0.15);color:#a78bfa;">CONTACT US</div>
+        <h2>Get in touch</h2>
+        <p>Have a question, feedback, or want to report an issue? We'd love to hear from you. Our team typically responds within 24 hours.</p>
+        <div class="contact-detail">📧 support@aijobagent.in</div>
+        <div class="contact-detail">📍 Bangalore, India</div>
+        <div class="contact-detail">🕐 Mon–Fri, 9am–6pm IST</div>
+        <div style="margin-top:1.5rem;">
+          <div style="font-size:13px;color:#64748b;margin-bottom:10px;">Also find us on</div>
+          <div style="display:flex;gap:10px;">
+            <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-size:13px;color:#a5b4fc;cursor:pointer;">LinkedIn</div>
+            <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-size:13px;color:#a5b4fc;cursor:pointer;">Twitter / X</div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form fade-in">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" placeholder="Rishabh Jain"/>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="rishabh@email.com"/>
+        </div>
+        <div class="form-group">
+          <label>Subject</label>
+          <select style="width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:10px 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;">
+            <option value="" style="background:#1e293b">Select a topic</option>
+            <option value="feedback" style="background:#1e293b">Product feedback</option>
+            <option value="bug" style="background:#1e293b">Report a bug</option>
+            <option value="feature" style="background:#1e293b">Feature request</option>
+            <option value="other" style="background:#1e293b">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea placeholder="Tell us how we can help..."></textarea>
+        </div>
+        <button class="form-submit">Send Message →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="margin-bottom:8px;">🤖 <strong>AI Job Agent</strong> — Built with Claude AI · Bangalore, India · 2025</div>
+  <div style="color:#334155;">Tailored resumes for every job, in minutes.</div>
+</footer>
+
+<script>
+  // FAQ toggle
+  function toggleFaq(el) {
+    var item = el.parentElement;
+    var isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(function(i){ i.classList.remove('open'); });
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // Scroll fade-in
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(function(el) { observer.observe(el); });
+
+  // Smooth scroll for nav links
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // Contact form submit
+  document.querySelector('.form-submit').addEventListener('click', function() {
+    alert('Thanks for reaching out! We will get back to you within 24 hours.');
+  });
+</script>
+</body>
+</html>
